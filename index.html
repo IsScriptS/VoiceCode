@@ -1,495 +1,1236 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Voicemod - Активация</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
-        }
+<meta charset="UTF-8">
+<title>Terraria Clone Online</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body {
+    width: 100%; height: 100%; overflow: hidden;
+    background: #0a0a12;
+    font-family: 'Segoe UI', Tahoma, sans-serif;
+    color: #e8e8f0;
+  }
+  canvas { display: block; }
 
-        body {
-            min-height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            background: radial-gradient(ellipse at 50% 20%, #0a1628 0%, #03070f 100%);
-            padding: 20px;
-        }
+  /* ===== МЕНЮ ===== */
+  #menu {
+    position: fixed; inset: 0;
+    display: flex; align-items: center; justify-content: center;
+    background: linear-gradient(180deg, #1a1a3a 0%, #0a0a1a 100%);
+    z-index: 1000;
+  }
+  #menu.hidden { display: none; }
+  .panel {
+    width: 420px;
+    background: rgba(20, 20, 40, 0.95);
+    border: 2px solid #4444aa;
+    border-radius: 14px;
+    padding: 28px 32px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.7), 0 0 40px rgba(80,80,200,0.2);
+    text-align: center;
+  }
+  .panel h1 {
+    font-size: 28px; margin-bottom: 6px;
+    background: linear-gradient(90deg, #ffd75e, #66ccff);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .panel p.sub {
+    color: #8888aa; font-size: 13px; margin-bottom: 22px;
+  }
+  .field {
+    margin-bottom: 14px; text-align: left;
+  }
+  .field label {
+    display: block; font-size: 12px; color: #9999bb;
+    margin-bottom: 5px; text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+  .field input {
+    width: 100%; padding: 11px 14px;
+    background: rgba(10,10,25,0.9);
+    border: 1px solid #4444aa;
+    border-radius: 8px;
+    color: #fff; font-size: 15px;
+    font-family: inherit;
+    outline: none;
+    transition: border 0.2s;
+  }
+  .field input:focus { border-color: #ffd75e; }
+  .field input::placeholder { color: #555577; }
 
-        .container {
-            background: linear-gradient(145deg, #0e1a2b, #060d1a);
-            padding: 50px 40px;
-            border-radius: 32px;
-            max-width: 500px;
-            width: 100%;
-            box-shadow: 
-                0 20px 60px rgba(0, 0, 0, 0.8),
-                0 0 0 1px rgba(0, 180, 255, 0.08),
-                inset 0 1px 0 rgba(255, 255, 255, 0.03);
-            border: 1px solid rgba(0, 150, 255, 0.12);
-            transition: all 0.3s ease;
-        }
+  .btn {
+    display: block;
+    width: 100%; padding: 12px;
+    margin-top: 10px;
+    background: linear-gradient(180deg, #4a4aa8, #2a2a78);
+    color: #fff; border: none;
+    border-radius: 8px;
+    font-size: 15px; font-weight: 600;
+    cursor: pointer;
+    font-family: inherit;
+    transition: transform 0.1s, box-shadow 0.2s;
+  }
+  .btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 6px 20px rgba(80,80,220,0.4);
+  }
+  .btn:active { transform: translateY(0); }
+  .btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
 
-        .logo {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            margin-bottom: 32px;
-            justify-content: center;
-        }
+  .btn.primary {
+    background: linear-gradient(180deg, #44aa44, #2a7a2a);
+  }
+  .btn.primary:hover { box-shadow: 0 6px 20px rgba(60,180,60,0.4); }
+  .btn.gold {
+    background: linear-gradient(180deg, #ddaa33, #997722);
+    color: #1a1a1a;
+  }
+  .btn.gold:hover { box-shadow: 0 6px 20px rgba(220,170,50,0.5); }
 
-        .logo-icon {
-            width: 44px;
-            height: 44px;
-            background: linear-gradient(135deg, #00a3ff, #0066cc);
-            border-radius: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 800;
-            font-size: 22px;
-            color: white;
-            box-shadow: 0 4px 20px rgba(0, 150, 255, 0.3);
-        }
+  .divider {
+    display: flex; align-items: center; gap: 12px;
+    margin: 18px 0; color: #555577; font-size: 12px;
+  }
+  .divider::before, .divider::after {
+    content: ''; flex: 1; height: 1px; background: #333355;
+  }
 
-        .logo-text {
-            font-size: 28px;
-            font-weight: 700;
-            background: linear-gradient(135deg, #fff 30%, #7ec8ff);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            letter-spacing: -0.5px;
-        }
+  .room-info {
+    background: rgba(10,10,25,0.9);
+    border: 2px solid #ffd75e;
+    border-radius: 10px;
+    padding: 18px;
+    margin-top: 14px;
+    display: none;
+  }
+  .room-info.visible { display: block; }
+  .room-info .code {
+    font-family: 'Consolas', monospace;
+    font-size: 32px; font-weight: bold;
+    color: #ffd75e;
+    letter-spacing: 6px;
+    margin: 10px 0;
+    user-select: all;
+  }
+  .room-info .copy-hint {
+    font-size: 11px; color: #8888aa;
+  }
 
-        .subtitle {
-            text-align: center;
-            color: rgba(255, 255, 255, 0.4);
-            font-size: 14px;
-            letter-spacing: 2px;
-            text-transform: uppercase;
-            margin-bottom: 30px;
-            font-weight: 300;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.04);
-            padding-bottom: 18px;
-        }
+  .status {
+    margin-top: 14px; font-size: 13px;
+    min-height: 20px;
+  }
+  .status.error { color: #ff6666; }
+  .status.success { color: #66dd66; }
+  .status.info { color: #66ccff; }
 
-        .input-group {
-            margin-bottom: 28px;
-        }
+  .players-list {
+    margin-top: 10px;
+    font-size: 13px;
+    color: #aaaacc;
+  }
+  .players-list .player-tag {
+    display: inline-block;
+    padding: 3px 10px;
+    background: rgba(80,80,200,0.3);
+    border-radius: 12px;
+    margin: 3px;
+    font-size: 12px;
+  }
 
-        .input-group label {
-            display: block;
-            color: rgba(255, 255, 255, 0.5);
-            font-size: 13px;
-            letter-spacing: 1px;
-            text-transform: uppercase;
-            margin-bottom: 10px;
-            font-weight: 300;
-        }
+  #hint {
+    position: fixed; top: 10px; left: 10px;
+    color: #e8e8f0; font-size: 12px;
+    background: rgba(10,10,25,0.75);
+    padding: 8px 12px;
+    border-radius: 8px;
+    pointer-events: none;
+    line-height: 1.6;
+    border: 1px solid rgba(255,255,255,0.08);
+  }
+  #hint b { color: #ffd75e; }
 
-        .input-wrapper {
-            position: relative;
-            display: flex;
-            align-items: center;
-            background: rgba(0, 20, 40, 0.5);
-            border-radius: 16px;
-            border: 1px solid rgba(0, 150, 255, 0.15);
-            transition: all 0.3s ease;
-            overflow: hidden;
-        }
-
-        .input-wrapper:focus-within {
-            border-color: #0088ff;
-            box-shadow: 0 0 0 4px rgba(0, 136, 255, 0.15), 0 0 30px rgba(0, 136, 255, 0.05);
-        }
-
-        .input-wrapper input {
-            width: 100%;
-            padding: 18px 20px;
-            background: transparent;
-            border: none;
-            outline: none;
-            color: #e8f4ff;
-            font-size: 18px;
-            letter-spacing: 2px;
-            font-weight: 400;
-        }
-
-        .input-wrapper input::placeholder {
-            color: rgba(255, 255, 255, 0.15);
-            letter-spacing: 1px;
-            font-size: 15px;
-        }
-
-        .input-wrapper .icon {
-            padding: 0 16px 0 20px;
-            color: rgba(255, 255, 255, 0.08);
-            font-size: 20px;
-        }
-
-        .code-hint {
-            display: flex;
-            justify-content: flex-end;
-            margin-top: 8px;
-            color: rgba(255, 255, 255, 0.12);
-            font-size: 12px;
-            letter-spacing: 0.5px;
-            padding-right: 4px;
-        }
-
-        .btn-activate {
-            width: 100%;
-            padding: 18px;
-            background: linear-gradient(135deg, #0088ff, #0055cc);
-            border: none;
-            border-radius: 16px;
-            color: white;
-            font-size: 18px;
-            font-weight: 600;
-            letter-spacing: 1.5px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            text-transform: uppercase;
-            box-shadow: 0 4px 30px rgba(0, 100, 255, 0.25);
-            position: relative;
-            overflow: hidden;
-        }
-
-        .btn-activate:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 40px rgba(0, 100, 255, 0.4);
-            background: linear-gradient(135deg, #1a94ff, #0066dd);
-        }
-
-        .btn-activate:active {
-            transform: translateY(0px);
-            box-shadow: 0 4px 20px rgba(0, 100, 255, 0.2);
-        }
-
-        .btn-activate::after {
-            content: '';
-            position: absolute;
-            top: -50%;
-            left: -50%;
-            width: 200%;
-            height: 200%;
-            background: radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.05), transparent 70%);
-            pointer-events: none;
-        }
-
-        .btn-activate:disabled {
-            opacity: 0.4;
-            cursor: not-allowed;
-            transform: none;
-            box-shadow: 0 4px 15px rgba(0, 100, 255, 0.08);
-        }
-
-        .status-message {
-            margin-top: 20px;
-            padding: 14px 18px;
-            border-radius: 12px;
-            font-size: 14px;
-            text-align: center;
-            transition: all 0.3s ease;
-            min-height: 52px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background: rgba(0, 20, 40, 0.3);
-            border: 1px solid rgba(255, 255, 255, 0.03);
-            color: rgba(255, 255, 255, 0.3);
-            letter-spacing: 0.3px;
-        }
-
-        .status-message.success {
-            background: rgba(0, 200, 100, 0.08);
-            border-color: rgba(0, 200, 100, 0.2);
-            color: #5dffb0;
-        }
-
-        .status-message.error {
-            background: rgba(255, 50, 50, 0.08);
-            border-color: rgba(255, 50, 50, 0.15);
-            color: #ff6b6b;
-        }
-
-        .footer-links {
-            display: flex;
-            justify-content: center;
-            gap: 24px;
-            margin-top: 28px;
-            font-size: 12px;
-            color: rgba(255, 255, 255, 0.08);
-            letter-spacing: 0.5px;
-        }
-
-        .footer-links span {
-            cursor: default;
-        }
-
-        /* Анимация для успешного состояния */
-        @keyframes pulse-glow {
-            0% { box-shadow: 0 0 0 0 rgba(0, 200, 100, 0.2); }
-            100% { box-shadow: 0 0 0 20px rgba(0, 200, 100, 0); }
-        }
-
-        .status-message.success {
-            animation: pulse-glow 1.5s ease-out;
-        }
-
-        /* Стили для темного скролла */
-        ::-webkit-scrollbar {
-            width: 6px;
-        }
-        ::-webkit-scrollbar-track {
-            background: #060d1a;
-        }
-        ::-webkit-scrollbar-thumb {
-            background: #1a2a40;
-            border-radius: 8px;
-        }
-
-        @media (max-width: 480px) {
-            .container {
-                padding: 32px 20px;
-            }
-            .logo-text {
-                font-size: 22px;
-            }
-            .input-wrapper input {
-                font-size: 16px;
-                padding: 16px 16px;
-            }
-            .btn-activate {
-                font-size: 16px;
-                padding: 16px;
-            }
-        }
-    </style>
+  #onlineInfo {
+    position: fixed; top: 10px; right: 10px;
+    background: rgba(10,10,25,0.85);
+    border: 1px solid rgba(100,200,100,0.3);
+    padding: 8px 12px;
+    border-radius: 8px;
+    font-size: 12px;
+    line-height: 1.6;
+  }
+  #onlineInfo .dot {
+    display: inline-block;
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: #66dd66;
+    box-shadow: 0 0 8px #66dd66;
+    margin-right: 6px;
+    animation: pulse 1.5s infinite;
+  }
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+  }
+  .player-tag-nick {
+    color: #ffd75e;
+  }
+</style>
 </head>
 <body>
 
-<div class="container">
-    <div class="logo">
-        <div class="logo-icon">◉</div>
-        <span class="logo-text">VOICEMOD</span>
-    </div>
-    <div class="subtitle">Активация лицензии</div>
-
-    <div class="input-group">
-        <label for="codeInput">Введите код активации</label>
-        <div class="input-wrapper">
-            <span class="icon">◆</span>
-            <input 
-                type="text" 
-                id="codeInput" 
-                placeholder="____-____-____-____" 
-                maxlength="23"
-                autocomplete="off"
-                spellcheck="false"
-            >
-        </div>
-        <div class="code-hint">Формат: XXXX-XXXX-XXXX-XXXX</div>
-    </div>
-
-    <button class="btn-activate" id="activateBtn">Активировать</button>
-
-    <div class="status-message" id="statusMessage">Ожидание ввода кода</div>
-
-    <div class="footer-links">
-        <span>●</span>
-        <span>Поддержка</span>
-        <span>●</span>
-        <span>Лицензия</span>
-        <span>●</span>
-    </div>
+<div id="hint">
+  <b>A/D</b> ходьба · <b>ПРОБЕЛ</b> прыжок · <b>ЛКМ</b> копать · <b>ПКМ</b> ставить<br>
+  <b>1-9</b> или <b>колесо</b> слот
 </div>
 
+<div id="onlineInfo" style="display:none;">
+  <div><span class="dot"></span><span id="onlineStatus">Онлайн</span></div>
+  <div id="onlineCode" style="color:#ffd75e;font-family:Consolas;font-size:11px;margin-top:4px;"></div>
+</div>
+
+<div id="menu">
+  <div class="panel">
+    <h1>TERRARIA CLONE</h1>
+    <p class="sub">Онлайн-песочница · Phaser 3 + PeerJS</p>
+
+    <div class="field">
+      <label>Твой ник</label>
+      <input id="nickInput" type="text" maxlength="16" placeholder="Игрок" autocomplete="off">
+    </div>
+
+    <button class="btn primary" id="hostBtn">🎮 Создать комнату</button>
+    <button class="btn" id="joinBtn">🔗 Подключиться к другу</button>
+    <button class="btn" id="soloBtn">👤 Играть одному</button>
+
+    <div class="room-info" id="roomInfo">
+      <div style="font-size:12px;color:#8888aa;">Код комнаты (отправь другу):</div>
+      <div class="code" id="roomCode">-----</div>
+      <div class="copy-hint">Нажми на код чтобы скопировать</div>
+      <div class="players-list" id="playersList"></div>
+    </div>
+
+    <div class="status" id="status"></div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/phaser@3.80.1/dist/phaser.min.js"></script>
+<script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
 <script>
-    (function() {
-        const codeInput = document.getElementById('codeInput');
-        const activateBtn = document.getElementById('activateBtn');
-        const statusMessage = document.getElementById('statusMessage');
+// ============================================================
+//  TERRARIA CLONE ONLINE
+//  Phaser 3 + PeerJS (P2P)
+// ============================================================
 
-        // Ожидаемый код
-        const VALID_CODE = '2192-2195-9883-AP12';
+// ---------- КОНСТАНТЫ ----------
+const TILE = 24;
+const WORLD_W = 200;
+const WORLD_H = 120;
+const GRAVITY = 800;
+const JUMP = -320;
+const SPEED = 180;
+const REACH = 6;
 
-        // Функция для форматирования кода при вводе (автоматическое добавление дефисов)
-        function formatCode(input) {
-            // Удаляем все не буквы/цифры
-            let raw = input.replace(/[^a-zA-Z0-9]/g, '').toUpperCase();
-            let formatted = '';
-            for (let i = 0; i < raw.length; i++) {
-                if (i > 0 && i % 4 === 0) {
-                    formatted += '-';
-                }
-                formatted += raw[i];
-            }
-            return formatted;
+const AIR=0, DIRT=1, GRASS=2, STONE=3, WOOD=4, LEAVES=5,
+      SAND=6, COAL=7, IRON=8, GOLD=9, DIAMOND=10,
+      PLANK=11, TORCH=12;
+
+const COLORS = {
+  [DIRT]:    [110,70,40],
+  [GRASS]:   [80,150,60],
+  [STONE]:   [115,115,122],
+  [WOOD]:    [95,65,35],
+  [LEAVES]:  [55,130,55],
+  [SAND]:    [220,200,130],
+  [COAL]:    [45,45,48],
+  [IRON]:    [175,145,125],
+  [GOLD]:    [225,190,70],
+  [DIAMOND]: [130,225,240],
+  [PLANK]:   [165,115,65],
+  [TORCH]:   [255,200,80],
+};
+
+const SOLID = new Set([DIRT,GRASS,STONE,WOOD,LEAVES,SAND,COAL,IRON,GOLD,DIAMOND,PLANK,TORCH]);
+
+// ---------- ГЛОБАЛЬНОЕ СОСТОЯНИЕ СЕТИ ----------
+window.NET = {
+  mode: 'off',           // 'off' | 'solo' | 'host' | 'client'
+  nick: '',
+  peer: null,
+  conn: null,            // для client — соединение с хостом
+  connections: [],       // для host — список соединений
+  roomCode: '',
+  players: {},           // id -> {x, y, nick, flipX, anim, hp}
+  localId: 'local',
+  worldSeed: 0,
+  worldTiles: null,      // Uint8Array (только для client — приходит от хоста)
+};
+
+// ---------- ШУМ ----------
+class Noise {
+  constructor(seed) {
+    this.p = new Uint8Array(512);
+    const perm = new Uint8Array(256);
+    for (let i = 0; i < 256; i++) perm[i] = i;
+    let s = seed || 1;
+    const rnd = () => (s = (s * 9301 + 49297) % 233280) / 233280;
+    for (let i = 255; i > 0; i--) {
+      const j = Math.floor(rnd() * (i + 1));
+      [perm[i], perm[j]] = [perm[j], perm[i]];
+    }
+    for (let i = 0; i < 512; i++) this.p[i] = perm[i & 255];
+  }
+  fade(t) { return t*t*t*(t*(t*6-15)+10); }
+  lerp(a,b,t) { return a + (b-a)*t; }
+  grad(h,x,y) {
+    const g = h & 3;
+    const u = g < 2 ? x : y;
+    const v = g < 2 ? y : x;
+    return ((g&1)?-u:u) + ((g&2)?-v:v);
+  }
+  noise2(x, y) {
+    const X = Math.floor(x) & 255, Y = Math.floor(y) & 255;
+    x -= Math.floor(x); y -= Math.floor(y);
+    const u = this.fade(x), v = this.fade(y);
+    const a = this.p[X] + Y, b = this.p[X+1] + Y;
+    return this.lerp(
+      this.lerp(this.grad(this.p[a], x, y),     this.grad(this.p[b], x-1, y),     u),
+      this.lerp(this.grad(this.p[a+1], x, y-1), this.grad(this.p[b+1], x-1, y-1), u),
+      v
+    );
+  }
+  octave(x, y, oct=3) {
+    let v=0, amp=1, freq=1, max=0;
+    for (let i=0;i<oct;i++){
+      v += this.noise2(x*freq, y*freq) * amp;
+      max += amp; amp *= 0.5; freq *= 2;
+    }
+    return v / max;
+  }
+}
+
+// ---------- ТЕКСТУРЫ ----------
+function makeBlockTexture(scene, id) {
+  const c = COLORS[id];
+  if (!c) return;
+  const g = scene.make.graphics({ add:false });
+  g.fillStyle(Phaser.Display.Color.GetColor(c[0], c[1], c[2]));
+  g.fillRect(0, 0, TILE, TILE);
+  g.fillStyle(0x000000, 0.18);
+  g.fillRect(0, TILE-3, TILE, 3);
+  g.fillRect(TILE-3, 0, 3, TILE);
+  g.fillStyle(0xffffff, 0.10);
+  g.fillRect(0, 0, TILE, 2);
+  g.fillRect(0, 0, 2, TILE);
+
+  const [r, gr, b] = c;
+  const dark = Phaser.Display.Color.GetColor(
+    Math.max(0, r-30), Math.max(0, gr-30), Math.max(0, b-30)
+  );
+
+  if (id === GRASS) {
+    g.fillStyle(0x2a5a20); g.fillRect(0, TILE-6, TILE, 6);
+    g.fillStyle(0x60c040);
+    for (let i = 0; i < 5; i++) g.fillRect(2+i*5, TILE-7, 2, 3);
+  } else if (id === DIRT || id === SAND) {
+    g.fillStyle(dark);
+    for (let i = 0; i < 7; i++) g.fillRect(2 + Math.random()*17, 2 + Math.random()*17, 3, 3);
+  } else if (id === STONE) {
+    g.fillStyle(dark);
+    g.fillRect(3,3,6,6); g.fillRect(13,6,7,5);
+    g.fillRect(5,14,8,5); g.fillRect(15,15,6,6);
+  } else if (id === WOOD) {
+    g.fillStyle(dark);
+    g.fillRect(4, 0, 3, TILE); g.fillRect(14, 0, 3, TILE);
+    g.fillStyle(0xffffff, 0.08); g.fillRect(0, TILE/2, TILE, 1);
+  } else if (id === LEAVES) {
+    g.fillStyle(0x1a4a1a);
+    g.fillRect(2,2,7,7); g.fillRect(13,8,8,7); g.fillRect(6,15,6,6);
+    g.fillStyle(0xffffff, 0.15);
+    g.fillRect(3,3,3,3); g.fillRect(14,9,3,3);
+  } else if (id === COAL || id === IRON || id === GOLD || id === DIAMOND) {
+    g.fillStyle(dark);
+    g.fillCircle(7, 8, 3); g.fillCircle(16, 14, 3);
+    g.fillStyle(0xffffff, 0.5);
+    g.fillCircle(6, 7, 1); g.fillCircle(15, 13, 1);
+  } else if (id === TORCH) {
+    g.clear();
+    g.fillStyle(0x6b3a1a); g.fillRect(TILE/2-2, TILE/2, 4, TILE/2);
+    g.fillStyle(0xffbb44); g.fillCircle(TILE/2, TILE/2-2, 5);
+    g.fillStyle(0xffee88); g.fillCircle(TILE/2, TILE/2-2, 3);
+  } else if (id === PLANK) {
+    g.fillStyle(dark);
+    g.fillRect(0, TILE/2-1, TILE, 2); g.fillRect(TILE/2-1, 0, 2, TILE);
+    g.lineStyle(1, 0x000000, 0.2); g.strokeRect(0, 0, TILE, TILE);
+  }
+  g.generateTexture('block_' + id, TILE, TILE);
+  g.destroy();
+}
+
+function makePlayerTextures(scene, prefix = 'player') {
+  const configs = [
+    { name: 'idle',  leg: 0,  arm: 0 },
+    { name: 'walk1', leg: 3,  arm: -3 },
+    { name: 'walk2', leg: -3, arm: 3 },
+    { name: 'jump',  leg: 4,  arm: -4 },
+  ];
+  const W = 22, H = 42;
+  configs.forEach(cfg => {
+    const g = scene.make.graphics({ add:false });
+    g.fillStyle(0x2a3d6b);
+    g.fillRect(5, H-14 + cfg.leg, 5, 12 - Math.abs(cfg.leg));
+    g.fillRect(12, H-14 - cfg.leg, 5, 12 - Math.abs(cfg.leg));
+    g.fillStyle(0x1a1a2e);
+    g.fillRect(4, H-3 + cfg.leg, 7, 3);
+    g.fillRect(11, H-3 - cfg.leg, 7, 3);
+    g.fillStyle(0xf0c8a0);
+    g.fillRect(1, 16 + cfg.arm, 4, 10);
+    g.fillRect(17, 16 - cfg.arm, 4, 10);
+    g.fillStyle(0x3a78c8);
+    g.fillRect(4, 14, 14, 14);
+    g.fillStyle(0x2a5a9e); g.fillRect(4, 22, 14, 3);
+    g.fillStyle(0xf0c8a0); g.fillRect(5, 2, 12, 12);
+    g.fillStyle(0x4a2818);
+    g.fillRect(5, 1, 12, 5); g.fillRect(4, 2, 2, 8); g.fillRect(16, 2, 2, 8);
+    g.fillStyle(0x1a1a1a);
+    g.fillRect(8, 8, 2, 3); g.fillRect(13, 8, 2, 3);
+    g.fillStyle(0xffffff);
+    g.fillRect(8, 8, 1, 1); g.fillRect(13, 8, 1, 1);
+    g.generateTexture(prefix + '_' + cfg.name, W, H);
+    g.destroy();
+  });
+}
+
+// ---------- ЗВУК ----------
+class SoundFX {
+  constructor() { this.ctx = null; }
+  init() {
+    if (!this.ctx) {
+      try { this.ctx = new (window.AudioContext || window.webkitAudioContext)(); } catch(e) {}
+    }
+  }
+  blip(freq, dur, type='square', vol=0.06) {
+    if (!this.ctx) return;
+    const o = this.ctx.createOscillator();
+    const g = this.ctx.createGain();
+    o.type = type;
+    o.frequency.setValueAtTime(freq, this.ctx.currentTime);
+    o.frequency.exponentialRampToValueAtTime(freq*0.7, this.ctx.currentTime + dur);
+    g.gain.setValueAtTime(vol, this.ctx.currentTime);
+    g.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + dur);
+    o.connect(g); g.connect(this.ctx.destination);
+    o.start(); o.stop(this.ctx.currentTime + dur);
+  }
+  dig()   { this.blip(200, 0.07); }
+  place() { this.blip(500, 0.06, 'sine'); }
+  jump()  { this.blip(700, 0.09, 'sine', 0.04); }
+}
+
+// ============================================================
+//  СЦЕНА
+// ============================================================
+class GameScene extends Phaser.Scene {
+  constructor() { super('game'); }
+
+  create() {
+    const scene = this;
+    this.sfx = new SoundFX();
+
+    for (const id in COLORS) makeBlockTexture(this, +id);
+    makePlayerTextures(this, 'player');
+
+    // Мир
+    const seed = window.NET.worldSeed || Math.floor(Math.random()*100000);
+    window.NET.worldSeed = seed;
+    this.noise = new Noise(seed);
+    this.tiles = new Uint8Array(WORLD_W * WORLD_H);
+    this.surface = new Int16Array(WORLD_W);
+
+    if (window.NET.mode === 'client' && window.NET.worldTiles) {
+      // Клиент получил мир от хоста
+      this.tiles.set(window.NET.worldTiles);
+      // Пересчитываем surface
+      for (let x = 0; x < WORLD_W; x++) {
+        for (let y = 0; y < WORLD_H; y++) {
+          if (this.getTile(x, y) !== AIR) { this.surface[x] = y; break; }
         }
+      }
+    } else {
+      this.generateWorld();
+      window.NET.worldTiles = this.tiles.slice(); // хост сохраняет
+    }
 
-        // Обработчик ввода с форматированием
-        codeInput.addEventListener('input', function(e) {
-            const cursorPos = this.selectionStart;
-            const oldLength = this.value.length;
+    this.buildTileSprites();
+    this.createPlayer();
+    this.createRemotePlayers();
+    this.createUI();
+    this.createParticles();
+    this.setupInput();
 
-            // Форматируем
-            let formatted = formatCode(this.value);
-            this.value = formatted;
+    this.cameras.main.setBounds(0, 0, WORLD_W*TILE, WORLD_H*TILE);
+    this.cameras.main.startFollow(this.player, true, 0.15, 0.15);
+    this.cameras.main.setRoundPixels(true);
 
-            // Корректируем позицию курсора
-            const newLength = formatted.length;
-            let newCursorPos = cursorPos;
-            // Если мы вставляли дефис, сдвигаем курсор
-            if (newLength > oldLength) {
-                // Проверяем, был ли вставлен дефис
-                const diff = newLength - oldLength;
-                if (diff === 1) {
-                    // Если после вставки дефиса курсор должен быть после него
-                    const parts = formatted.split('-');
-                    let charCount = 0;
-                    for (let i = 0; i < parts.length; i++) {
-                        charCount += parts[i].length;
-                        if (i < parts.length - 1) {
-                            charCount += 1; // дефис
-                        }
-                        if (charCount >= cursorPos + diff) {
-                            newCursorPos = charCount;
-                            break;
-                        }
-                    }
-                }
-            } else if (newLength < oldLength) {
-                // При удалении сдвигаем курсор на место удаления
-                newCursorPos = cursorPos;
-            }
-            // Ограничиваем
-            newCursorPos = Math.min(newCursorPos, formatted.length);
-            this.setSelectionRange(newCursorPos, newCursorPos);
+    // Сетевое обновление
+    this.netTimer = 0;
+    this.netInterval = 50; // 20 раз/сек
 
-            // Сбрасываем статус при изменении
-            if (statusMessage.classList.contains('success') || statusMessage.classList.contains('error')) {
-                statusMessage.className = 'status-message';
-                statusMessage.textContent = 'Введите код для активации';
-            }
-        });
+    // Показываем онлайн-инфо
+    if (window.NET.mode !== 'solo' && window.NET.mode !== 'off') {
+      document.getElementById('onlineInfo').style.display = 'block';
+      document.getElementById('onlineCode').textContent = 'Комната: ' + window.NET.roomCode;
+    }
+  }
 
-        // Запрещаем ввод более 23 символов (19 букв/цифр + 4 дефиса)
-        codeInput.addEventListener('keydown', function(e) {
-            if (this.value.length >= 23 && !['Backspace', 'Delete', 'ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown', 'Tab'].includes(e.key)) {
-                e.preventDefault();
-            }
-        });
+  // ============ ГЕНЕРАЦИЯ ============
+  generateWorld() {
+    const n = this.noise;
+    const base = Math.floor(WORLD_H / 3);
+    for (let x = 0; x < WORLD_W; x++) {
+      const h = base + Math.floor(n.octave(x*0.02, 0, 2) * 12 + n.octave(x*0.05, 100, 1) * 5);
+      this.surface[x] = h;
+      this.setTile(x, h, GRASS);
+      const dd = 4 + Math.floor(Math.random() * 3);
+      for (let y = h+1; y < h+1+dd; y++) this.setTile(x, y, DIRT);
+      for (let y = h+1+dd; y < WORLD_H; y++) this.setTile(x, y, STONE);
+    }
+    for (let x = 0; x < WORLD_W; x++)
+      for (let y = Math.floor(WORLD_H/2); y < WORLD_H; y++)
+        if (n.octave(x*0.06, y*0.06, 2) > 0.35) this.setTile(x, y, AIR);
 
-        // Вставка из буфера обмена с форматированием
-        codeInput.addEventListener('paste', function(e) {
-            e.preventDefault();
-            const pasted = (e.clipboardData || window.clipboardData).getData('text');
-            const cleaned = pasted.replace(/[^a-zA-Z0-9]/g, '').toUpperCase();
-            const truncated = cleaned.slice(0, 19);
-            let formatted = '';
-            for (let i = 0; i < truncated.length; i++) {
-                if (i > 0 && i % 4 === 0) {
-                    formatted += '-';
-                }
-                formatted += truncated[i];
-            }
-            this.value = formatted;
-            // Триггерим событие для обновления статуса
-            this.dispatchEvent(new Event('input'));
-        });
+    this.scatter(COAL, 0.03, 4);
+    this.scatter(IRON, 0.015, 3);
+    this.scatter(GOLD, 0.007, 2);
+    this.scatter(DIAMOND, 0.002, 2);
 
-        // Функция активации
-        function activate() {
-            const enteredCode = codeInput.value.trim();
-            const normalizedEntered = enteredCode.toUpperCase();
+    let x = 4;
+    while (x < WORLD_W - 4) {
+      if (this.getTile(x, this.surface[x]) === GRASS) {
+        this.tree(x, this.surface[x] - 1);
+        x += 4 + Math.floor(Math.random()*6);
+      } else x++;
+    }
+  }
 
-            // Блокируем кнопку на время проверки
-            activateBtn.disabled = true;
-            activateBtn.textContent = 'Проверка...';
+  getTile(x, y) {
+    if (x < 0 || x >= WORLD_W || y < 0 || y >= WORLD_H) return STONE;
+    return this.tiles[y * WORLD_W + x];
+  }
+  setTile(x, y, v) {
+    if (x < 0 || x >= WORLD_W || y < 0 || y >= WORLD_H) return;
+    this.tiles[y * WORLD_W + x] = v;
+  }
+  scatter(block, prob, size) {
+    const count = Math.floor(WORLD_W * WORLD_H * prob / 100);
+    for (let i = 0; i < count; i++) {
+      const x = 2 + Math.floor(Math.random() * (WORLD_W - 4));
+      const y = Math.floor(WORLD_H/2) + Math.floor(Math.random() * (WORLD_H/2 - 3));
+      if (this.getTile(x, y) !== STONE) continue;
+      for (let dy = 0; dy < size; dy++)
+        for (let dx = 0; dx < size; dx++)
+          if (this.getTile(x+dx, y+dy) === STONE && Math.random() < 0.7)
+            this.setTile(x+dx, y+dy, block);
+    }
+  }
+  tree(x, gy) {
+    const h = 4 + Math.floor(Math.random()*4);
+    for (let i = 0; i < h; i++) this.setTile(x, gy - i, WOOD);
+    const top = gy - h;
+    for (let dy = -2; dy < 2; dy++)
+      for (let dx = -2; dx <= 2; dx++)
+        if (Math.abs(dx)+Math.abs(dy) <= 3 && this.getTile(x+dx, top+dy) === AIR)
+          this.setTile(x+dx, top+dy, LEAVES);
+  }
 
-            // Небольшая задержка для имитации проверки
-            setTimeout(() => {
-                // Сравниваем с валидным кодом (регистронезависимо)
-                if (normalizedEntered === VALID_CODE) {
-                    // Успех!
-                    statusMessage.className = 'status-message success';
-                    statusMessage.textContent = '✅ Код верен! Перенаправление...';
+  // ============ ТАЙЛЫ ============
+  buildTileSprites() {
+    this.tileSprites = new Map();
+    for (let y = 0; y < WORLD_H; y++) {
+      for (let x = 0; x < WORLD_W; x++) {
+        const b = this.getTile(x, y);
+        if (b === AIR) continue;
+        const s = this.add.image(x * TILE, y * TILE, 'block_' + b)
+          .setOrigin(0, 0).setDepth(10);
+        this.tileSprites.set(x + ',' + y, s);
+      }
+    }
+  }
 
-                    // Перенаправление через 1 секунду
-                    setTimeout(() => {
-                        window.location.href = 'https://www.voicemod.net/';
-                    }, 1000);
+  updateTileSprite(x, y) {
+    const key = x + ',' + y;
+    const existing = this.tileSprites.get(key);
+    const b = this.getTile(x, y);
+    if (b === AIR) {
+      if (existing) { existing.destroy(); this.tileSprites.delete(key); }
+    } else {
+      if (existing) existing.setTexture('block_' + b);
+      else {
+        const s = this.add.image(x * TILE, y * TILE, 'block_' + b)
+          .setOrigin(0, 0).setDepth(10);
+        this.tileSprites.set(key, s);
+      }
+    }
+  }
 
-                } else {
-                    // Ошибка
-                    statusMessage.className = 'status-message error';
-                    statusMessage.textContent = '❌ Неверный код. Попробуйте ещё раз.';
+  // ============ ИГРОК ============
+  createPlayer() {
+    const sx = Math.floor(WORLD_W / 2);
+    const sy = this.surface[sx] - 3;
 
-                    // Возвращаем кнопку в активное состояние
-                    activateBtn.disabled = false;
-                    activateBtn.textContent = 'Активировать';
+    this.anims.create({ key: 'idle', frameRate: 1, repeat: -1, frames: [{ key: 'player_idle' }] });
+    this.anims.create({ key: 'walk', frameRate: 8, repeat: -1,
+      frames: [{ key: 'player_walk1' }, { key: 'player_idle' }, { key: 'player_walk2' }, { key: 'player_idle' }] });
+    this.anims.create({ key: 'jump', frameRate: 1, repeat: -1, frames: [{ key: 'player_jump' }] });
 
-                    // Очищаем поле через 2 секунды? (по желанию)
-                    // codeInput.value = '';
-                    // codeInput.focus();
-                }
-            }, 400);
+    this.player = this.physics.add.sprite(sx * TILE, sy * TILE, 'player_idle');
+    this.player.setDepth(15);
+    this.player.body.setSize(14, 38);
+    this.player.body.setOffset(4, 4);
+    this.player.setMaxVelocity(300, 900);
+    this.player.play('idle');
+
+    this.playerHP = 100;
+    this.playerMaxHP = 100;
+
+    // Ник над игроком
+    const nickText = (window.NET.nick || 'Игрок') + (window.NET.mode === 'host' ? ' (хост)' : '');
+    this.nickLabel = this.add.text(sx * TILE, sy * TILE - 30, nickText, {
+      fontFamily: 'Segoe UI', fontSize: '12px', color: '#ffd75e',
+      stroke: '#000', strokeThickness: 3
+    }).setOrigin(0.5).setDepth(20);
+  }
+
+  // ============ УДАЛЁННЫЕ ИГРОКИ ============
+  createRemotePlayers() {
+    this.remotePlayers = {}; // id -> {sprite, nick, lastUpdate}
+  }
+
+  getOrCreateRemote(id, nick) {
+    if (this.remotePlayers[id]) return this.remotePlayers[id];
+    const spr = this.physics.add.sprite(0, 0, 'player_idle');
+    spr.setDepth(15);
+    spr.body.setAllowGravity(false);
+    spr.play('idle');
+    const label = this.add.text(0, 0, nick || '???', {
+      fontFamily: 'Segoe UI', fontSize: '12px', color: '#66ccff',
+      stroke: '#000', strokeThickness: 3
+    }).setOrigin(0.5).setDepth(20);
+    this.remotePlayers[id] = { sprite: spr, label, nick, targetX: 0, targetY: 0, anim: 'idle', flip: false };
+    return this.remotePlayers[id];
+  }
+
+  removeRemote(id) {
+    const rp = this.remotePlayers[id];
+    if (!rp) return;
+    rp.sprite.destroy();
+    rp.label.destroy();
+    delete this.remotePlayers[id];
+  }
+
+  // ============ UI ============
+  createUI() {
+    this.inventory = {
+      slots: [DIRT, STONE, WOOD, PLANK, TORCH, AIR, AIR, AIR, AIR],
+      counts: [50, 50, 30, 20, 15, 0, 0, 0, 0],
+      selected: 0
+    };
+
+    this.add.rectangle(20, 20, 220, 22, 0x000000, 0.6).setOrigin(0,0).setScrollFactor(0).setDepth(101);
+    this.hpBar = this.add.rectangle(22, 22, 216, 18, 0xcc3333).setOrigin(0,0).setScrollFactor(0).setDepth(102);
+    this.add.text(130, 31, 'HP', { fontFamily: 'Consolas', fontSize: '12px', color: '#fff' })
+      .setOrigin(0.5).setScrollFactor(0).setDepth(103);
+
+    this.hotbarGfx = this.add.graphics().setScrollFactor(0).setDepth(100);
+    this.hotbarTexts = [];
+    this.hotbarImgs = [];
+    this.slotRects = []; // для кликов
+
+    const slotSize = 48, gap = 4;
+    const total = 9 * (slotSize + gap) - gap;
+    this.hotbarBounds = {
+      startX: (this.scale.width - total) / 2,
+      y: this.scale.height - slotSize - 12,
+      slotSize, gap
+    };
+
+    // Клики по хотбару
+    this.input.on('pointerdown', (p) => {
+      const { startX, y, slotSize, gap } = this.hotbarBounds;
+      for (let i = 0; i < 9; i++) {
+        const sx = startX + i*(slotSize+gap);
+        if (p.x >= sx && p.x <= sx + slotSize && p.y >= y && p.y <= y + slotSize) {
+          this.inventory.selected = i;
+          this.drawHotbar();
+          return;
         }
+      }
+    });
 
-        // Обработчик клика по кнопке
-        activateBtn.addEventListener('click', function(e) {
-            e.preventDefault();
+    this.drawHotbar();
 
-            const enteredCode = codeInput.value.trim();
-            if (!enteredCode) {
-                statusMessage.className = 'status-message error';
-                statusMessage.textContent = '⚠️ Пожалуйста, введите код активации';
-                codeInput.focus();
-                return;
-            }
+    this.scale.on('resize', () => {
+      const { slotSize, gap } = this.hotbarBounds;
+      const total = 9 * (slotSize + gap) - gap;
+      this.hotbarBounds.startX = (this.scale.width - total) / 2;
+      this.hotbarBounds.y = this.scale.height - slotSize - 12;
+      this.drawHotbar();
+    });
+  }
 
-            // Проверяем формат (должен быть XXXX-XXXX-XXXX-XXXX)
-            const codePattern = /^[A-Z0-9]{4}-[A-Z0-9]{4}-[A-Z0-9]{4}-[A-Z0-9]{4}$/;
-            if (!codePattern.test(enteredCode.toUpperCase())) {
-                statusMessage.className = 'status-message error';
-                statusMessage.textContent = '⚠️ Неверный формат. Используйте XXXX-XXXX-XXXX-XXXX';
-                return;
-            }
+  drawHotbar() {
+    const inv = this.inventory;
+    const { startX, y, slotSize, gap } = this.hotbarBounds;
+    const g = this.hotbarGfx;
+    g.clear();
+    g.fillStyle(0x000000, 0.35);
+    g.fillRect(startX - 6, y - 6, 9*(slotSize+gap)-gap+12, slotSize+12);
+    for (let i = 0; i < 9; i++) {
+      const x = startX + i*(slotSize+gap);
+      g.fillStyle(0x1a1a2a, 0.9);
+      g.fillRect(x, y, slotSize, slotSize);
+      g.lineStyle(2, i === inv.selected ? 0xffd75e : 0x44445a, 1);
+      g.strokeRect(x, y, slotSize, slotSize);
+    }
+    this.hotbarImgs.forEach(i => i.destroy());
+    this.hotbarImgs = [];
+    for (let i = 0; i < 9; i++) {
+      if (inv.counts[i] > 0 && inv.slots[i] !== AIR) {
+        const x = startX + i*(slotSize+gap) + slotSize/2;
+        const cy = y + slotSize/2;
+        const img = this.add.image(x, cy, 'block_' + inv.slots[i])
+          .setScrollFactor(0).setDepth(101).setScale(1.6);
+        this.hotbarImgs.push(img);
+      }
+    }
+    this.hotbarTexts.forEach(t => t.destroy());
+    this.hotbarTexts = [];
+    for (let i = 0; i < 9; i++) {
+      if (inv.counts[i] > 0 && inv.slots[i] !== AIR) {
+        const x = startX + i*(slotSize+gap) + slotSize - 4;
+        const cy = y + slotSize - 4;
+        const t = this.add.text(x, cy, inv.counts[i], {
+          fontFamily: 'Consolas', fontSize: '13px', color: '#fff',
+          stroke: '#000', strokeThickness: 3
+        }).setOrigin(1, 1).setScrollFactor(0).setDepth(102);
+        this.hotbarTexts.push(t);
+      }
+    }
+  }
 
-            activate();
+  addItem(block, amount = 1) {
+    if (block === AIR) return;
+    for (let i = 0; i < 9; i++)
+      if (this.inventory.slots[i] === block && this.inventory.counts[i] > 0) {
+        this.inventory.counts[i] += amount; return;
+      }
+    for (let i = 0; i < 9; i++)
+      if (this.inventory.slots[i] === AIR || this.inventory.counts[i] === 0) {
+        this.inventory.slots[i] = block;
+        this.inventory.counts[i] = amount;
+        return;
+      }
+  }
+  useSelected() {
+    const i = this.inventory.selected;
+    if (this.inventory.counts[i] > 0) {
+      this.inventory.counts[i]--;
+      return this.inventory.slots[i];
+    }
+    return AIR;
+  }
+  getSelected() {
+    const i = this.inventory.selected;
+    return this.inventory.counts[i] > 0 ? this.inventory.slots[i] : AIR;
+  }
+
+  // ============ ЧАСТИЦЫ ============
+  createParticles() {
+    const g = this.make.graphics({ add:false });
+    g.fillStyle(0xffffff, 1);
+    g.fillRect(0, 0, 4, 4);
+    g.generateTexture('particle', 4, 4);
+    g.destroy();
+    this.digEmitter = this.add.particles(0, 0, 'particle', {
+      speed: { min: 40, max: 120 },
+      angle: { min: 200, max: 340 },
+      lifespan: 400, gravityY: 400,
+      scale: { start: 1, end: 0 }, emitting: false
+    }).setDepth(16);
+  }
+
+  // ============ ВВОД ============
+  setupInput() {
+    const scene = this;
+    this.keys = this.input.keyboard.addKeys({
+      left: 'A', left2: 'LEFT',
+      right: 'D', right2: 'RIGHT',
+      jump: 'SPACE', jump2: 'W', jump3: 'UP'
+    });
+
+    // ФИКС: правильные имена клавиш в Phaser
+    const keyNames = ['ONE','TWO','THREE','FOUR','FIVE','SIX','SEVEN','EIGHT','NINE'];
+    keyNames.forEach((name, i) => {
+      this.input.keyboard.on('keydown-' + name, () => {
+        scene.inventory.selected = i;
+        scene.drawHotbar();
+      });
+    });
+    // Numpad тоже
+    const numpadNames = ['NUMPAD_ONE','NUMPAD_TWO','NUMPAD_THREE','NUMPAD_FOUR','NUMPAD_FIVE',
+                         'NUMPAD_SIX','NUMPAD_SEVEN','NUMPAD_EIGHT','NUMPAD_NINE'];
+    numpadNames.forEach((name, i) => {
+      this.input.keyboard.on('keydown-' + name, () => {
+        scene.inventory.selected = i;
+        scene.drawHotbar();
+      });
+    });
+
+    this.input.on('wheel', (pointer, objs, dx, dy) => {
+      scene.inventory.selected = (scene.inventory.selected + (dy > 0 ? 1 : -1) + 9) % 9;
+      scene.drawHotbar();
+    });
+
+    this.input.mouse.disableContextMenu();
+    this.mouseLeft = false;
+    this.mouseRight = false;
+
+    this.input.on('pointerdown', p => {
+      scene.sfx.init();
+      if (p.leftButtonDown())  scene.mouseLeft = true;
+      if (p.rightButtonDown()) scene.mouseRight = true;
+    });
+    this.input.on('pointerup', p => {
+      if (!p.leftButtonDown())  scene.mouseLeft = false;
+      if (!p.rightButtonDown()) scene.mouseRight = false;
+    });
+
+    this.digTimer = 0;
+    this.placeTimer = 0;
+  }
+
+  // ============ КОЛЛИЗИИ ============
+  resolveTileCollision() {
+    const p = this.player;
+    const w = p.body.width, h = p.body.height;
+    let x = p.x - w/2, y = p.y - h/2;
+    const x1 = Math.floor(x / TILE), x2 = Math.floor((x + w - 1) / TILE);
+    const y1 = Math.floor(y / TILE), y2 = Math.floor((y + h - 1) / TILE);
+
+    let hitBottom = false, hitTop = false, hitLeft = false, hitRight = false;
+
+    for (let ty = y1; ty <= y2; ty++) {
+      for (let tx = x1; tx <= x2; tx++) {
+        if (!SOLID.has(this.getTile(tx, ty))) continue;
+        const bx = tx * TILE, by = ty * TILE;
+        const oX = Math.min(x + w, bx + TILE) - Math.max(x, bx);
+        const oY = Math.min(y + h, by + TILE) - Math.max(y, by);
+        if (oX <= 0 || oY <= 0) continue;
+        if (oX < oY) {
+          if (p.body.velocity.x > 0 || x + w/2 < bx + TILE/2) {
+            p.x -= oX; x -= oX; hitRight = true;
+          } else {
+            p.x += oX; x += oX; hitLeft = true;
+          }
+        } else {
+          if (p.body.velocity.y > 0 || y + h/2 < by + TILE/2) {
+            p.y -= oY; y -= oY; hitBottom = true;
+            p.body.velocity.y = 0;
+          } else {
+            p.y += oY; y += oY; hitTop = true;
+            p.body.velocity.y = 0;
+          }
+        }
+      }
+    }
+    p.body.blocked.down  = hitBottom;
+    p.body.blocked.up    = hitTop;
+    p.body.blocked.left  = hitLeft;
+    p.body.blocked.right = hitRight;
+  }
+
+  // ============ СЕТЬ ============
+  sendNet(data) {
+    const net = window.NET;
+    if (net.mode === 'host') {
+      net.connections.forEach(c => { if (c.open) c.send(data); });
+    } else if (net.mode === 'client' && net.conn && net.conn.open) {
+      net.conn.send(data);
+    }
+  }
+
+  handleNetMessage(data, fromConn) {
+    const net = window.NET;
+    if (data.t === 'move') {
+      // Обновление позиции игрока
+      const rp = this.getOrCreateRemote(data.id, data.nick);
+      rp.targetX = data.x;
+      rp.targetY = data.y;
+      rp.anim = data.anim;
+      rp.flip = data.flip;
+      rp.nick = data.nick;
+      rp.label.setText(data.nick);
+      // Хост ретранслирует другим клиентам
+      if (net.mode === 'host' && fromConn) {
+        net.connections.forEach(c => {
+          if (c !== fromConn && c.open) c.send(data);
         });
+      }
+    } else if (data.t === 'leave') {
+      this.removeRemote(data.id);
+      if (net.mode === 'host' && fromConn) {
+        net.connections.forEach(c => { if (c !== fromConn && c.open) c.send(data); });
+      }
+    } else if (data.t === 'tile') {
+      // Изменение тайла
+      this.setTile(data.x, data.y, data.b);
+      this.updateTileSprite(data.x, data.y);
+      if (net.mode === 'host' && fromConn) {
+        net.connections.forEach(c => { if (c !== fromConn && c.open) c.send(data); });
+      }
+    } else if (data.t === 'init') {
+      // Клиент получает мир от хоста
+      net.worldSeed = data.seed;
+      net.worldTiles = new Uint8Array(data.tiles);
+      // Перезапускаем сцену
+      this.scene.restart();
+    }
+  }
 
-        // Обработчик нажатия Enter в поле ввода
-        codeInput.addEventListener('keydown', function(e) {
-            if (e.key === 'Enter') {
-                e.preventDefault();
-                activateBtn.click();
-            }
-        });
+  updateNetwork(dt) {
+    const net = window.NET;
+    if (net.mode === 'solo' || net.mode === 'off') return;
 
-        // При загрузке фокус на поле ввода
-        window.addEventListener('load', function() {
-            codeInput.focus();
-        });
+    this.netTimer -= dt;
+    if (this.netTimer <= 0) {
+      this.netTimer = this.netInterval;
+      const p = this.player;
+      let anim = 'idle';
+      if (!p.body.blocked.down) anim = 'jump';
+      else if (Math.abs(p.body.velocity.x) > 20) anim = 'walk';
 
-        // Небольшая анимация для поля ввода при фокусе
-        codeInput.addEventListener('focus', function() {
-            this.parentElement.style.borderColor = '#0088ff';
-            this.parentElement.style.boxShadow = '0 0 0 4px rgba(0,136,255,0.1), 0 0 30px rgba(0,136,255,0.03)';
-        });
+      this.sendNet({
+        t: 'move',
+        id: net.localId,
+        nick: net.nick,
+        x: p.x, y: p.y,
+        anim, flip: p.flipX
+      });
+    }
 
-        codeInput.addEventListener('blur', function() {
-            this.parentElement.style.borderColor = 'rgba(0,150,255,0.15)';
-            this.parentElement.style.boxShadow = 'none';
-        });
+    // Плавное движение удалённых игроков
+    for (const id in this.remotePlayers) {
+      const rp = this.remotePlayers[id];
+      rp.sprite.x += (rp.targetX - rp.sprite.x) * 0.3;
+      rp.sprite.y += (rp.targetY - rp.sprite.y) * 0.3;
+      rp.sprite.setFlipX(rp.flip);
+      rp.sprite.play(rp.anim, true);
+      rp.label.x = rp.sprite.x;
+      rp.label.y = rp.sprite.y - 30;
+    }
+  }
 
-    })();
+  // ============ ГЛАВНЫЙ ЦИКЛ ============
+  update(time, delta) {
+    const dt = Math.min(50, delta);
+    const k = this.keys;
+
+    const left  = k.left.isDown || k.left2.isDown;
+    const right = k.right.isDown || k.right2.isDown;
+    const jump  = k.jump.isDown || k.jump2.isDown || k.jump3.isDown;
+
+    const p = this.player;
+    const body = p.body;
+
+    if (left && !right) { body.setVelocityX(-SPEED); p.setFlipX(true); }
+    else if (right && !left) { body.setVelocityX(SPEED); p.setFlipX(false); }
+    else body.setVelocityX(0);
+
+    if (jump && body.blocked.down) {
+      body.setVelocityY(JUMP);
+      this.sfx.jump();
+    }
+
+    this.resolveTileCollision();
+
+    const onGround = body.blocked.down;
+    const moving = Math.abs(body.velocity.x) > 20;
+    if (!onGround) p.play('jump', true);
+    else if (moving) p.play('walk', true);
+    else p.play('idle', true);
+
+    // Ник над головой
+    this.nickLabel.x = p.x;
+    this.nickLabel.y = p.y - 30;
+
+    this.handleInteraction(dt);
+    this.updateNetwork(dt);
+  }
+
+  handleInteraction(dt) {
+    const pointer = this.input.activePointer;
+    const cam = this.cameras.main;
+    const worldX = pointer.x + cam.scrollX;
+    const worldY = pointer.y + cam.scrollY;
+    const tx = Math.floor(worldX / TILE);
+    const ty = Math.floor(worldY / TILE);
+
+    const pdx = tx * TILE + TILE/2 - this.player.x;
+    const pdy = ty * TILE + TILE/2 - this.player.y;
+    const dist = Math.hypot(pdx, pdy);
+    const inReach = dist <= REACH * TILE;
+
+    if (this.cursorGfx) this.cursorGfx.destroy();
+    this.cursorGfx = this.add.graphics().setDepth(50);
+    const cx = tx * TILE - cam.scrollX;
+    const cy = ty * TILE - cam.scrollY;
+    this.cursorGfx.lineStyle(2, inReach ? 0xffffff : 0xff4444, 0.8);
+    this.cursorGfx.strokeRect(cx, cy, TILE, TILE);
+
+    // Копать
+    if (this.mouseLeft && inReach) {
+      this.digTimer -= dt;
+      if (this.digTimer <= 0) {
+        const b = this.getTile(tx, ty);
+        if (b !== AIR) {
+          this.setTile(tx, ty, AIR);
+          this.addItem(b, 1);
+          this.updateTileSprite(tx, ty);
+          this.sfx.dig();
+          this.digEmitter.emitParticleAt(tx*TILE+TILE/2, ty*TILE+TILE/2, 6);
+          this.drawHotbar();
+          this.sendNet({ t: 'tile', x: tx, y: ty, b: AIR });
+          this.digTimer = 130;
+        }
+      }
+    } else this.digTimer = 0;
+
+    // Ставить
+    if (this.mouseRight && inReach) {
+      this.placeTimer -= dt;
+      if (this.placeTimer <= 0) {
+        const b = this.getSelected();
+        if (b !== AIR && this.getTile(tx, ty) === AIR) {
+          const bx = tx * TILE, by = ty * TILE;
+          const pw = this.player.body.width, ph = this.player.body.height;
+          const pxc = this.player.x, pyc = this.player.y;
+          const overlap = !(bx+TILE <= pxc-pw/2 || bx >= pxc+pw/2 ||
+                            by+TILE <= pyc-ph/2 || by >= pyc+ph/2);
+          if (!overlap) {
+            this.setTile(tx, ty, b);
+            this.useSelected();
+            this.updateTileSprite(tx, ty);
+            this.sfx.place();
+            this.drawHotbar();
+            this.sendNet({ t: 'tile', x: tx, y: ty, b });
+            this.placeTimer = 110;
+          }
+        }
+      }
+    } else this.placeTimer = 0;
+  }
+}
+
+// ============================================================
+//  СЕТЕВАЯ ЛОГИКА (PeerJS)
+// ============================================================
+const $ = id => document.getElementById(id);
+
+function setStatus(text, type = 'info') {
+  const el = $('status');
+  el.textContent = text;
+  el.className = 'status ' + type;
+}
+
+function genRoomCode() {
+  return Math.random().toString(36).substring(2, 8);
+}
+
+function startGame(mode) {
+  window.NET.mode = mode;
+  $('menu').classList.add('hidden');
+  if (window.game) window.game.destroy(true);
+  window.game = new Phaser.Game(gameConfig);
+}
+
+// ===== СОЗДАТЬ КОМНАТУ (хост) =====
+function hostRoom() {
+  const nick = $('nickInput').value.trim() || 'Хост';
+  window.NET.nick = nick;
+  window.NET.mode = 'host';
+  window.NET.localId = 'host';
+  window.NET.roomCode = genRoomCode();
+
+  setStatus('Создаём комнату...', 'info');
+
+  const peer = new Peer('terraria-' + window.NET.roomCode, { debug: 1 });
+  window.NET.peer = peer;
+
+  peer.on('open', (id) => {
+    setStatus('✅ Комната создана! Ждём друзей...', 'success');
+    $('roomInfo').classList.add('visible');
+    $('roomCode').textContent = window.NET.roomCode.toUpperCase();
+  });
+
+  peer.on('connection', (conn) => {
+    window.NET.connections.push(conn);
+    setStatus(`Игрок подключается...`, 'info');
+
+    conn.on('open', () => {
+      setStatus(`✅ Игрок подключён! Всего: ${window.NET.connections.length}`, 'success');
+
+      // Отправляем клиенту мир
+      conn.send({
+        t: 'init',
+        seed: window.NET.worldSeed,
+        tiles: Array.from(window.NET.worldTiles || [])
+      });
+
+      // Если игра уже идёт — ретранслируем
+      if (window.game && window.game.scene.scenes[0]) {
+        const sc = window.game.scene.scenes[0];
+        sc.getOrCreateRemote(conn.peer, 'Игрок');
+      }
+    });
+
+    conn.on('data', (data) => {
+      if (window.game && window.game.scene.scenes[0]) {
+        window.game.scene.scenes[0].handleNetMessage(data, conn);
+      }
+    });
+
+    conn.on('close', () => {
+      const idx = window.NET.connections.indexOf(conn);
+      if (idx >= 0) window.NET.connections.splice(idx, 1);
+      if (window.game && window.game.scene.scenes[0]) {
+        window.game.scene.scenes[0].removeRemote(conn.peer);
+      }
+      setStatus(`Игрок отключился. Осталось: ${window.NET.connections.length}`, 'info');
+    });
+
+    conn.on('error', (err) => console.error('Conn error', err));
+  });
+
+  peer.on('error', (err) => {
+    console.error(err);
+    if (err.type === 'unavailable-id') {
+      setStatus('Код занят, пробуем снова...', 'error');
+      window.NET.roomCode = genRoomCode();
+      peer.destroy();
+      hostRoom();
+    } else {
+      setStatus('Ошибка: ' + err.type, 'error');
+    }
+  });
+
+  // Стартуем игру сразу — хост генерит мир
+  window.NET.worldSeed = Math.floor(Math.random()*100000);
+  startGame('host');
+}
+
+// ===== ПОДКЛЮЧИТЬСЯ (клиент) =====
+function joinRoom() {
+  const nick = $('nickInput').value.trim() || 'Игрок';
+  window.NET.nick = nick;
+  window.NET.mode = 'client';
+
+  const code = prompt('Введи код комнаты (6 символов):');
+  if (!code) { setStatus('Отменено', 'info'); return; }
+  const cleanCode = code.trim().toLowerCase();
+
+  setStatus('Подключаемся к ' + cleanCode + '...', 'info');
+
+  const peer = new Peer(null, { debug: 1 });
+  window.NET.peer = peer;
+  window.NET.roomCode = cleanCode;
+
+  peer.on('open', () => {
+    const conn = peer.connect('terraria-' + cleanCode, { reliable: true });
+    window.NET.conn = conn;
+
+    conn.on('open', () => {
+      setStatus('✅ Подключено! Загружаем мир...', 'success');
+      window.NET.localId = peer.id;
+    });
+
+    conn.on('data', (data) => {
+      if (data.t === 'init') {
+        window.NET.worldSeed = data.seed;
+        window.NET.worldTiles = new Uint8Array(data.tiles);
+        // Стартуем игру с полученным миром
+        startGame('client');
+      } else if (window.game && window.game.scene.scenes[0]) {
+        window.game.scene.scenes[0].handleNetMessage(data, conn);
+      }
+    });
+
+    conn.on('close', () => {
+      setStatus('Хост отключился', 'error');
+    });
+
+    conn.on('error', (err) => {
+      setStatus('Ошибка соединения', 'error');
+      console.error(err);
+    });
+  });
+
+  peer.on('error', (err) => {
+    console.error(err);
+    setStatus('Ошибка: ' + err.type + ' (проверь код)', 'error');
+  });
+}
+
+// ===== ИГРАТЬ ОДНОМУ =====
+function soloGame() {
+  const nick = $('nickInput').value.trim() || 'Игрок';
+  window.NET.nick = nick;
+  window.NET.mode = 'solo';
+  window.NET.worldSeed = Math.floor(Math.random()*100000);
+  startGame('solo');
+}
+
+// ===== КОПИРОВАНИЕ КОДА КОМНАТЫ =====
+$('roomCode').addEventListener('click', () => {
+  const code = $('roomCode').textContent;
+  navigator.clipboard.writeText(code).then(() => {
+    $('roomCode').style.color = '#66dd66';
+    setTimeout(() => $('roomCode').style.color = '', 400);
+  });
+});
+
+// ===== КНОПКИ =====
+$('hostBtn').addEventListener('click', hostRoom);
+$('joinBtn').addEventListener('click', joinRoom);
+$('soloBtn').addEventListener('click', soloGame);
+$('nickInput').addEventListener('keydown', e => {
+  if (e.key === 'Enter') soloGame();
+});
+
+// ============================================================
+//  КОНФИГ PHASER
+// ============================================================
+const gameConfig = {
+  type: Phaser.AUTO,
+  parent: document.body,
+  backgroundColor: '#87ceeb',
+  scale: {
+    mode: Phaser.Scale.RESIZE,
+    width: window.innerWidth,
+    height: window.innerHeight
+  },
+  physics: {
+    default: 'arcade',
+    arcade: { gravity: { y: GRAVITY }, debug: false }
+  },
+  pixelArt: true,
+  roundPixels: true,
+  scene: [GameScene]
+};
+
+window.addEventListener('resize', () => {
+  if (window.game) window.game.scale.resize(window.innerWidth, window.innerHeight);
+});
 </script>
 </body>
 </html>
